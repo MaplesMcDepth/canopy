@@ -4,15 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/MaplesMcDepth/canopy/pkg/alerts"
 	"github.com/MaplesMcDepth/canopy/pkg/budget"
 	"github.com/MaplesMcDepth/canopy/pkg/dashboard"
-	"github.com/MaplesMcDepth/canopy/pkg/interceptor"
-	"github.com/MaplesMcDepth/canopy/pkg/models"
 	"github.com/MaplesMcDepth/canopy/pkg/reports"
 	"github.com/MaplesMcDepth/canopy/pkg/store"
 )
@@ -51,21 +47,6 @@ func main() {
 	budgetMgr := budget.NewManager(sqliteStore)
 	alertSender := &alerts.LoggerAlertSender{}
 	alertMgr := alerts.NewManager(sqliteStore, alertSender)
-
-	// For demonstration, we'll use a simple cost calculator that returns a fixed cost.
-	// In a real implementation, this would parse the response and calculate based on token usage.
-	costCalculator := func(req *http.Request, resp *http.Response) (float64, error) {
-		// Placeholder: In reality, we'd extract token usage and calculate cost per model.
-		// For now, we return a fixed small cost to demonstrate.
-		return 0.002, nil
-	}
-
-	// Create interceptor
-	apiInterceptor := &interceptor.Interceptor{
-		Store:        sqliteStore,
-		CostCalculator: costCalculator,
-		RoundTripper: http.DefaultTransport,
-	}
 
 	// Create dashboard server
 	dashServer := dashboard.NewServer(sqliteStore, budgetMgr, alertMgr)
